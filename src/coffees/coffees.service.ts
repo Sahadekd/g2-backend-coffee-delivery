@@ -26,7 +26,7 @@ export class CoffeesService {
   async create(dto: CreateCoffeeDto) {
     const { tagIds, ...data } = dto;
   
-    // Verificar se as tags existem
+  
     const existingTags = await this.prisma.tag.findMany({
       where: { id: { in: tagIds } },
       select: { id: true },
