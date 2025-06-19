@@ -3,7 +3,6 @@ import { PrismaModule } from './prisma/prisma.module';
 import { CoffeesModule } from './coffees/coffees.module';
 import { TagsModule } from './tags/tags.module';
 import { CartModule } from './cart/cart.module';
-import { CheckoutModule } from './checkout/checkout.module';
 
 @Module({
   imports: [
@@ -11,7 +10,6 @@ import { CheckoutModule } from './checkout/checkout.module';
     CoffeesModule,
     TagsModule,
     CartModule,
-    CheckoutModule,
   ],
 })
 export class AppModule {}

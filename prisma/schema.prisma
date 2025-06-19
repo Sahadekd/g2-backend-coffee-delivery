@@ -1,10 +1,23 @@
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("postgresql://G2_DB_owner:npg_Vj4qQPaK7yUN@ep-empty-brook-acnk2z80-pooler.sa-east-1.aws.neon.tech/G2_DB?sslmode=require")
+}
+
+enum CartStatus {
+  ABANDONADO
+  AGUARDANDO_PAGAMENTO
+  FINALIZADO
+}
+
+enum PaymentStatus {
+  APROVADO
+  ANALISE
+  PENDENTE
+  CANCELADO
 }
 
 model Coffee {
@@ -15,9 +28,8 @@ model Coffee {
   imageUrl    String
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  
-  // Relacionamentos incompleto
-  // tags
+  tags        CoffeeTag[]
+  CartItem    CartItem[]
 }
 
 model Tag {
@@ -25,33 +37,37 @@ model Tag {
   name      String      @unique
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
-  
-  // Relacionamentos 
   coffees   CoffeeTag[]
 }
 
 model CoffeeTag {
   coffeeId  String
   tagId     String
-  // Relacionamentos aqui
+  coffee   Coffee @relation(fields: [coffeeId], references: [id])
+  tag      Tag    @relation(fields: [tagId], references: [id])
+
+  @@id([coffeeId, tagId])
 }
 
 model Cart {
-  id        String     @id @default(uuid())
-  userId    String?    // Opcional para usuários não autenticados
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  
-  // Relacionamentos incompleto
-  items     CartItem[]
+  id                String        @id @default(uuid())
+  userId            String?
+  status            CartStatus    @default(ABANDONADO)
+  statusPayment     PaymentStatus @default(PENDENTE)
+  dateTimeCompleted DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  items             CartItem[]
 }
 
 model CartItem {
-  id         String   @id @default(uuid())
-  quantity   Int
-  unitPrice  Decimal  @db.Decimal(10, 2)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  
-  // Relacionamentos aqui
+  id        String   @id @default(uuid())
+  cartId    String
+  coffeeId  String
+  quantity  Int      @default(1) @db.SmallInt
+  unitPrice Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  cart      Cart     @relation(fields: [cartId], references: [id])
+  coffee    Coffee   @relation(fields: [coffeeId], references: [id])
 }

@@ -1,7 +1,6 @@
-import { Coffee as PrismaCoffee } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 
-export class Coffee implements PrismaCoffee {
+export class Coffee {
   id: string;
   name: string;
   description: string;
@@ -9,7 +8,5 @@ export class Coffee implements PrismaCoffee {
   imageUrl: string;
   createdAt: Date;
   updatedAt: Date;
-  
-  // Campos adicionais não presentes no modelo Prisma
   tags?: { id: string; name: string }[];
-} 
+}

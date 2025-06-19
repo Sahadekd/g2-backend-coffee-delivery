@@ -1,6 +1,8 @@
-import { Controller, Get, Post, Body, Param, HttpStatus, HttpCode, Query } from '@nestjs/common';
+import {Controller,Get,Post,Patch,Delete,Body,Param,Query,HttpStatus,HttpCode,NotFoundException,} from '@nestjs/common';
 import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
+import { UpdateCoffeeDto } from './dto/update-coffee.dto';
+import { CoffeeResponseDto } from './dto/coffee-response.dto';
 
 @Controller('coffees')
 export class CoffeesController {
@@ -12,23 +14,25 @@ export class CoffeesController {
   }
 
   @Get('search')
-  async search(
-    @Query('start_date') start_date?: string,
-    @Query('end_date') end_date?: string,
+  async searchCoffees(
     @Query('name') name?: string,
+    @Query('minPrice') minPrice?: string,
+    @Query('maxPrice') maxPrice?: string,
     @Query('tags') tags?: string,
-    @Query('limit') limit = 10,
-    @Query('offset') offset = 0,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+    @Query('page') page = '1',
+    @Query('limit') limit = '10',
   ) {
-    const tagsList = tags ? tags.split(',') : [];
-    
-    return this.coffeesService.searchCoffees({
-      start_date: start_date ? new Date(start_date) : undefined,
-      end_date: end_date ? new Date(end_date) : undefined,
+    return this.coffeesService.advancedSearch({
       name,
-      tags: tagsList,
-      limit: +limit,
-      offset: +offset,
+      minPrice: minPrice ? parseFloat(minPrice) : undefined,
+      maxPrice: maxPrice ? parseFloat(maxPrice) : undefined,
+      tags: tags ? tags.split(',') : [],
+      startDate: startDate ? new Date(startDate) : undefined,
+      endDate: endDate ? new Date(endDate) : undefined,
+      page: parseInt(page),
+      limit: parseInt(limit),
     });
   }
 
@@ -39,9 +43,17 @@ export class CoffeesController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() createCoffeeDto: CreateCoffeeDto) {
-    return this.coffeesService.create(createCoffeeDto);
+  async create(@Body() dto: CreateCoffeeDto) {
+    return this.coffeesService.create(dto);
   }
 
-  // adicionar outro endpoints
-} 
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() dto: UpdateCoffeeDto) {
+    return this.coffeesService.update(id, dto);
+  }
+
+  @Delete(':id')
+  async remove(@Param('id') id: string) {
+    return this.coffeesService.remove(id);
+  }
+}
